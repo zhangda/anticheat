@@ -23,7 +23,6 @@ public class AvroScheme implements Scheme{
 
 	@Override
 	public List<Object> deserialize(byte[] bytes) {
-		//getFile(bytes, "C:\\Users\\zhang\\Desktop","avrofile");
 		 List data = new ArrayList();
 		 SeekableByteArrayInput seekable = new SeekableByteArrayInput(bytes);
 		 DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>();
@@ -35,7 +34,7 @@ public class AvroScheme implements Scheme{
 			 GenericRecord activity = null;
 			 while (dataFileReader.hasNext()) {
 		            activity = dataFileReader.next(activity);   
-		            System.out.println("=========="+activity.toString());
+		            System.out.println(activity.toString());
 		            Object obj = JSON.parseObject(activity.toString(), clazz);
 		            data.add(obj);
 		     }
@@ -51,39 +50,4 @@ public class AvroScheme implements Scheme{
 		return new Fields("datalist");
 	}
 	
-	
-	 public void getFile(byte[] bfile, String filePath,String fileName) {  
-	        BufferedOutputStream bos = null;  
-	        FileOutputStream fos = null;  
-	        File file = null;  
-	        try {  
-	            File dir = new File(filePath);  
-	            if(!dir.exists()&&dir.isDirectory()){//判断文件目录是否存在  
-	                dir.mkdirs();  
-	            }  
-	            file = new File(filePath+"\\"+fileName);  
-	            fos = new FileOutputStream(file);  
-	            bos = new BufferedOutputStream(fos);  
-	            bos.write(bfile);  
-	        } catch (Exception e) {  
-	            e.printStackTrace();  
-	        } finally {  
-	            if (bos != null) {  
-	                try {  
-	                    bos.close();  
-	                } catch (IOException e1) {  
-	                    e1.printStackTrace();  
-	                }  
-	            }  
-	            if (fos != null) {  
-	                try {  
-	                    fos.close();  
-	                } catch (IOException e1) {  
-	                    e1.printStackTrace();  
-	                }  
-	            }  
-	        }  
-	    }  
- 
-
 }

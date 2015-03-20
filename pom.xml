@@ -185,6 +185,10 @@
             	<num_workers>1</num_workers>
 				<num_spouts>1</num_spouts>
 				<num_bolts>2</num_bolts>
+				<banUrl>https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers</banUrl>
+				<alertThreshold>5</alertThreshold>
+				<emitFrequencyInSec>60</emitFrequencyInSec>
+				<windowLengthInSec>300</windowLengthInSec>
             </properties>
         </profile> 
         
@@ -203,6 +207,10 @@
             	<num_workers>1</num_workers>
 				<num_spouts>2</num_spouts>
 				<num_bolts>4</num_bolts>
+				<banUrl>https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers</banUrl>
+				<alertThreshold>10</alertThreshold>
+				<emitFrequencyInSec>60</emitFrequencyInSec>
+				<windowLengthInSec>300</windowLengthInSec>
             </properties>
         </profile> 
         
@@ -222,6 +230,11 @@
             	<num_workers>1</num_workers>
 				<num_spouts>2</num_spouts>
 				<num_bolts>4</num_bolts>
+				<banUrl>https://tp-edge.chinacloudapp.cn/config/banusers</banUrl>
+				<!-- https://tp-edge.chinacloudapp.cn/config/banusers -->
+				<alertThreshold>10</alertThreshold>
+				<emitFrequencyInSec>60</emitFrequencyInSec>
+				<windowLengthInSec>300</windowLengthInSec>
             </properties>
         </profile> 
         

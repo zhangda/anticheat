@@ -42,13 +42,12 @@ public class FilterBolt extends BaseRichBolt {
 			} catch (IllegalAccessException | InvocationTargetException e) {
 				e.printStackTrace();
 			}
-			
-			String json = JSON.toJSONString(obj);
-			logger.info(json);
-			if((int)event.getHae()==8100 || (int)event.getHae()==8111 || (int)event.getHae()==8115){
+
+			Integer hae = event.getHae();
+			if(hae!=null && (hae == 8100 || hae ==8111 || hae == 8115) ){
 				String msg = event.getMsg();
-				String oid=null;
-				String tid=null;
+				String oid= null;
+				String tid= null;
 				Pattern p = Pattern.compile("hid:\\[\\[(.*)\\]\\].*tbUid:\\[\\[(.*)\\]\\]");
 				Matcher m = p.matcher(msg);
 				while(m.find()){
@@ -56,7 +55,7 @@ public class FilterBolt extends BaseRichBolt {
 					tid = m.group(2);
 				}
 				logger.info("oid: "+oid+" tid: "+tid);
-				if(oid!=null && tid!=null){
+				if(oid!=null && tid!=null && !oid.trim().equals("") && !tid.trim().equals("")){
 					collector.emit(new Values(oid, tid));
 				}
 			}

@@ -30,22 +30,22 @@ public class KafkaStormTopology {
 		
 		BrokerHosts zk = new ZkHosts(confReader.getProperty("zkHosts"));	 
 		Config conf = new Config(); 
-//		conf.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, Integer.parseInt(confReader.getProperty("emitTimeInt")));
 		conf.put(Config.TOPOLOGY_WORKERS, Integer.parseInt(confReader.getProperty("num_workers")));
-//		conf.put(Config.TOPOLOGY_ACKER_EXECUTORS, Integer.parseInt(confReader.getProperty("num_workers")));
-		
-		
-		SpoutConfig  appSpoutConf = new SpoutConfig(zk, confReader.getProperty("appeventTopic"), "/"+confReader.getProperty("appeventTopic"),UUID.randomUUID().toString());
+
+		SpoutConfig  appSpoutConf = new SpoutConfig(zk, confReader.getProperty("appeventTopic"), "/"+confReader.getProperty("appeventTopic"), UUID.randomUUID().toString());
         appSpoutConf.fetchSizeBytes = 5 * 1024 * 1024;
         appSpoutConf.bufferSizeBytes = 5 * 1024 * 1024;
         appSpoutConf.scheme = new SchemeAsMultiScheme(new AvroScheme());
         
         KafkaSpout kafkaSpout = new KafkaSpout(appSpoutConf);
         
-      TopologyBuilder builder = new TopologyBuilder();
-      builder.setSpout("appspout", kafkaSpout, 2);
-      builder.setBolt("filterBolt", new FilterBolt(), 4).shuffleGrouping("appspout");
-      builder.setBolt("groupingBolt", new GroupingBolt(1*60,5*60,5), 4).fieldsGrouping("filterBolt", new Fields("tid"));
+        TopologyBuilder builder = new TopologyBuilder();
+        builder.setSpout("appspout", kafkaSpout, Integer.parseInt(confReader.getProperty("num_spouts")));
+        builder.setBolt("filterBolt", new FilterBolt(), Integer.parseInt(confReader.getProperty("num_bolts"))).shuffleGrouping("appspout");
+        builder.setBolt("groupingBolt", new GroupingBolt(Integer.parseInt(confReader.getProperty("emitFrequencyInSec")), 
+        													Integer.parseInt(confReader.getProperty("windowLengthInSec")),
+        													Integer.parseInt(confReader.getProperty("alertThreshold")),confReader.getProperty("banUrl")), 
+        								Integer.parseInt(confReader.getProperty("num_bolts"))).fieldsGrouping("filterBolt", new Fields("tid"));
           
         try {
 			StormSubmitter.submitTopology("anticheat", conf, builder.createTopology());
