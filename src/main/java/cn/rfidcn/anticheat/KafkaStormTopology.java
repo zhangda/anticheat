@@ -44,7 +44,10 @@ public class KafkaStormTopology {
         builder.setBolt("filterBolt", new FilterBolt(), Integer.parseInt(confReader.getProperty("num_bolts"))).shuffleGrouping("appspout");
         builder.setBolt("groupingBolt", new GroupingBolt(Integer.parseInt(confReader.getProperty("emitFrequencyInSec")), 
         													Integer.parseInt(confReader.getProperty("windowLengthInSec")),
-        													Integer.parseInt(confReader.getProperty("alertThreshold")),confReader.getProperty("banUrl")), 
+        													Integer.parseInt(confReader.getProperty("alertThreshold")),
+        													Integer.parseInt(confReader.getProperty("successWinLenth")),
+        													Integer.parseInt(confReader.getProperty("successThreshold")),
+        													confReader.getProperty("banUrl")), 
         								Integer.parseInt(confReader.getProperty("num_bolts"))).fieldsGrouping("filterBolt", new Fields("tid"));
           
         try {

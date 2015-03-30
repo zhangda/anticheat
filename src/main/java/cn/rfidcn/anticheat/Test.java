@@ -41,8 +41,9 @@
 //        TopologyBuilder builder = new TopologyBuilder();
 //        builder.setSpout("appspout", kafkaSpout, 1);
 //        builder.setBolt("filterBolt", new TestBolt(), 2).shuffleGrouping("appspout");
-//        builder.setBolt("groupingBolt", new GroupingBolt(5,20,2,"https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers"), 1).fieldsGrouping("filterBolt", new Fields("tid"));
-//          
+//        builder.setBolt("groupingBolt", new GroupingBolt(5,20,2,40,3, "https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers"), 1)
+//        								.fieldsGrouping("filterBolt", new Fields("tid"));
+//       
 //        LocalCluster cluster = new LocalCluster();
 //        cluster.submitTopology("anticheat-test", conf,  builder.createTopology());  
 //     

@@ -42,6 +42,12 @@ public class GroupingBolt extends BaseRichBolt{
 	private HashMap<String, HashSet<String>[]> map;
 	private String banUrl;
 	
+	private int successWinLength;
+	private int successSize;
+	private int successThreshold;
+	private int successCurrent;
+	private HashMap<String, HashSet<String>[]> successMap;
+	
 	private OutputCollector collector;
 	
 	static {
@@ -53,7 +59,7 @@ public class GroupingBolt extends BaseRichBolt{
 	}
 	
 	
-	public GroupingBolt(int emitFrequencyInSec, int windowLengthInSec, int threshold, String banUrl){
+	public GroupingBolt(int emitFrequencyInSec, int windowLengthInSec, int threshold, int successWinLenth, int successThreshold, String banUrl){
 		this.emitFrequencyInSec = emitFrequencyInSec;
 		this.windowLengthInSec = windowLengthInSec;
 		this.threshold = threshold;
@@ -61,6 +67,12 @@ public class GroupingBolt extends BaseRichBolt{
 		this.size = windowLengthInSec / emitFrequencyInSec;
 		this.current = 0;
 		this.banUrl = banUrl;
+		
+		this.successWinLength = successWinLenth; //60*30;
+		this.successSize = successWinLength / emitFrequencyInSec;
+		this.successThreshold = successThreshold; //40;
+		this.successCurrent = 0;
+		this.successMap = new HashMap<String,HashSet<String>[]>();
 	}
 
 	
@@ -93,47 +105,54 @@ public class GroupingBolt extends BaseRichBolt{
 	    return conf;
 	}
 	
-
+	
+	private void doRecord(String _oid, String _tid, HashMap<String, HashSet<String>[]> _map, int _size, int _current){
+		HashSet<String>[] slots = _map.get(_tid);
+		if(slots==null){
+			slots = (HashSet<String>[]) Array.newInstance(HashSet.class, _size);
+			for(int i=0; i<_size; i++){
+			   slots[i]= new HashSet<String>();
+		    }
+			_map.put(_tid, slots);
+		}
+		_map.get(_tid)[_current].add(_oid);
+		
+		logger.info("new record ==> "+_oid);
+		logger.info("************************");
+		print(_map, _current, _size);
+		logger.info("************************");
+	}
+	
 	private void doRecord(Tuple input){
 		String oid = input.getString(0);
 		String tid = input.getString(1);
+		int flag = input.getInteger(2);
 		
-		HashSet<String>[] slots = map.get(tid);
-		if(slots==null){
-			slots = (HashSet<String>[]) Array.newInstance(HashSet.class, size);
-			for(int i=0; i<size; i++){
-			   slots[i]= new HashSet<String>();
-		    }
-			map.put(tid, slots);
-		}
-		slots[current].add(oid);
-		
-		logger.info("new record ==> "+oid);
-		logger.info("************************");
-		print();
-		logger.info("************************");
-		
+		if(flag == FilterBolt.FAIL){
+			doRecord(oid, tid, map, size, current);
+		}else if (flag == FilterBolt.SUCCESS){
+			doRecord(oid, tid, successMap, successSize, successCurrent);
+		}else{
+			logger.error("FLAG IS WRONG "+flag);
+		}	
 		collector.ack(input);
 	}
+	
+	
+	private void doEmit(HashMap<String, HashSet<String>[]> _map, int _size, int _current, int _threshold){
 
-	private void doEmit(){
-		logger.info("the current window status... ");
-		logger.info("===========================");
-		print();
-		logger.info("===========================");
-		current = (current+1)%size;
-		Iterator itr = map.keySet().iterator();
+		Iterator itr = _map.keySet().iterator();
 		List<String> users =  new ArrayList<String>();
 		List<String> toClean = new ArrayList<String>();
 		while(itr.hasNext()){
 			String tid = (String)itr.next();
-			HashSet<String>[]  slots = map.get(tid);
+			HashSet<String>[]  slots = _map.get(tid);
 			
 			Set<String> all = new HashSet<String>();
-			for(int i=0;i<size;i++){
+			for(int i=0;i<_size;i++){
 				all.addAll(slots[i]);
 			}
-			if(all.size()>= threshold){
+			if(all.size()>= _threshold){
 				// collector.emit(new Values(tid));
 				logger.info("found bad gay, emit >>>>>>>>  "+tid);
 				users.add(tid);
@@ -141,31 +160,49 @@ public class GroupingBolt extends BaseRichBolt{
 			if(all.size()==0){
 				toClean.add(tid);
 			}
-			map.get(tid)[current].clear();
+			_map.get(tid)[_current].clear();
 	   }
-		print();
+		print(_map, _current, _size);
 		logger.info("===========================");
-		
+	   
+	   for(String tid:toClean){
+		   _map.remove(tid);
+	   }
+	   
 	   if(!users.isEmpty()){
 			try {
 				doBan(banUrl, users);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 		    }
 	    }
 	   
-	   for(String tid:toClean){
-		   map.remove(tid);
-	   }
 	}
+
+	private void doEmit(){
+		logger.info("the current window status... ");
+		logger.info("===========================");
+		print(map, current, size);
+		logger.info("===========================");
+		logger.info(".........................");
+		print(successMap, successCurrent, successSize);
+		logger.info(".........................");
+		
+		current = (current+1)%size;
+		successCurrent = (successCurrent+1)%successSize;
+		
+		doEmit(map, size, current, threshold);
+		doEmit(successMap, successSize, successCurrent, successThreshold);
+		
+	   }
 	
 	private boolean isTickTuple(Tuple tuple) {
 	    return tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) && tuple.getSourceStreamId().equals(
 	        Constants.SYSTEM_TICK_STREAM_ID);
 	  }
 
-	private void print(){
+	
+	private void print(HashMap<String, HashSet<String>[]> map, int current, int size){
 	  Iterator mItr = map.keySet().iterator();
 	  while(mItr.hasNext()){
 		 String tid = (String)mItr.next();

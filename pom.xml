@@ -189,6 +189,8 @@
 				<alertThreshold>5</alertThreshold>
 				<emitFrequencyInSec>60</emitFrequencyInSec>
 				<windowLengthInSec>300</windowLengthInSec>
+				<successWinLength>1800</successWinLength>
+				<successThreshold>40</successThreshold>
             </properties>
         </profile> 
         
@@ -210,7 +212,9 @@
 				<banUrl>https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers</banUrl>
 				<alertThreshold>10</alertThreshold>
 				<emitFrequencyInSec>60</emitFrequencyInSec>
-				<windowLengthInSec>300</windowLengthInSec>
+				<windowLengthInSec>600</windowLengthInSec>
+				<successWinLength>1800</successWinLength>
+				<successThreshold>40</successThreshold>
             </properties>
         </profile> 
         
@@ -227,14 +231,16 @@
                 <zkHosts>prod1:2181,prod2:2181,prod3:2181</zkHosts>
             	<appeventTopic>appevent</appeventTopic>
            	 	<emitTimeInt>1000</emitTimeInt>
-            	<num_workers>1</num_workers>
+            	<num_workers>2</num_workers>
 				<num_spouts>2</num_spouts>
 				<num_bolts>4</num_bolts>
 				<banUrl>https://tp-edge.chinacloudapp.cn/config/banusers</banUrl>
 				<!-- https://tp-edge.chinacloudapp.cn/config/banusers -->
-				<alertThreshold>10</alertThreshold>
+				<alertThreshold>5</alertThreshold>
 				<emitFrequencyInSec>60</emitFrequencyInSec>
-				<windowLengthInSec>300</windowLengthInSec>
+				<windowLengthInSec>600</windowLengthInSec>
+				<successWinLength>1800</successWinLength>
+				<successThreshold>40</successThreshold>
             </properties>
         </profile> 
         

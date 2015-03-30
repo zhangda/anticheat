@@ -31,18 +31,17 @@ public class TestBolt  extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple input) {
-		//oid,tid
+		//oid,tid,flag
 		String s = input.getString(0).trim();
 		String ss[] = s.split(",");
-		collector.emit(new Values(ss[0],ss[1]));
-		System.out.println("===="+ss);
+		collector.emit(new Values(ss[0],ss[1],Integer.parseInt(ss[2])));
 		logger.info("==="+s);
 		collector.ack(input);
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("oid", "tid"));
+		declarer.declare(new Fields("oid", "tid", "flag"));
 		
 	}
 	

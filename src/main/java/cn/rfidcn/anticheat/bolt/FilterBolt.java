@@ -24,6 +24,9 @@ public class FilterBolt extends BaseRichBolt {
 
 	static final Logger logger = Logger.getLogger(FilterBolt.class);
 	
+	public static int SUCCESS =0;
+	public static int FAIL= 1;
+	
 	private OutputCollector collector;
 	 
 	@Override
@@ -44,7 +47,7 @@ public class FilterBolt extends BaseRichBolt {
 			}
 
 			Integer hae = event.getHae();
-			if(hae!=null && (hae == 8100 || hae ==8111 || hae == 8115) ){
+			if(hae!=null && (hae == 8100 || hae ==8111 || hae == 8115 || hae == 8700) ){
 				String msg = event.getMsg();
 				String oid= null;
 				String tid= null;
@@ -56,7 +59,11 @@ public class FilterBolt extends BaseRichBolt {
 				}
 				logger.info("oid: "+oid+" tid: "+tid);
 				if(oid!=null && tid!=null && !oid.trim().equals("") && !tid.trim().equals("")){
-					collector.emit(new Values(oid, tid));
+					if(hae == 8700){
+						collector.emit(new Values(oid, tid, SUCCESS));
+					}else{
+						collector.emit(new Values(oid, tid, FAIL));
+					}
 				}
 			}
 		}
@@ -66,7 +73,7 @@ public class FilterBolt extends BaseRichBolt {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		 declarer.declare(new Fields("oid", "tid"));
+		 declarer.declare(new Fields("oid", "tid", "flag"));
 	}
 
 }
