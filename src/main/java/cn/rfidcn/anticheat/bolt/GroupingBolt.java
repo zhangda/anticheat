@@ -219,7 +219,7 @@ public class GroupingBolt extends BaseRichBolt{
 			System.out.print(s+"|");
 		}
 		System.out.println();
-	 }	
+	  }
 	}
 	
 	

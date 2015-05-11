@@ -1,8 +1,5 @@
 package cn.rfidcn.anticheat.scheme;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +31,7 @@ public class AvroScheme implements Scheme{
 			 GenericRecord activity = null;
 			 while (dataFileReader.hasNext()) {
 		            activity = dataFileReader.next(activity);   
-		            System.out.println(activity.toString());
+		            //System.out.println(activity.toString());
 		            Object obj = JSON.parseObject(activity.toString(), clazz);
 		            data.add(obj);
 		     }

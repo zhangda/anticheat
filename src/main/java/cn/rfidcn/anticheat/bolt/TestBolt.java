@@ -15,6 +15,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import cn.rfidcn.anticheat.model.AppSysLogEvent;
+import cn.rfidcn.anticheat.v2.job.DetectJob;
 
 import com.alibaba.fastjson.JSON;
 
@@ -31,11 +32,15 @@ public class TestBolt  extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple input) {
-		//oid,tid,flag
+		//flag,oid,tid
 		String s = input.getString(0).trim();
+		System.out.println("=================>"+s);
 		String ss[] = s.split(",");
-		collector.emit(new Values(ss[0],ss[1],Integer.parseInt(ss[2])));
-		logger.info("==="+s);
+		if(ss[0].equals("1")){
+			collector.emit(new Values(DetectJob.ID.taoId_too_many_failure,ss[1],ss[2]));
+		}else{
+			collector.emit(new Values(DetectJob.ID.taoId_too_many_success, ss[1],ss[2]));
+		}
 		collector.ack(input);
 	}
 
