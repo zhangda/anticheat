@@ -60,7 +60,7 @@ public class GroupingBoltV2 extends BaseRichBolt{
 	@Override
 	public void execute(Tuple input) {
 		if(isTickTuple(input)){
-			logger.info("time's up, find out bad guys!!!");
+			allDoTick();
 			allDoEmit();
 			allDoPrint();
 		}else{
@@ -78,13 +78,20 @@ public class GroupingBoltV2 extends BaseRichBolt{
 	
 	private void allDoEmit(){
 		for(DetectJob job: jobs){
-			job.doEmit();
+			if(job.isToEmit())
+				job.doEmit();
 		}
 	}
 
 	private void allDoPrint(){
 		for(DetectJob job: jobs){
 			job.doPrint();
+		}
+	}
+	
+	private void allDoTick(){
+		for(DetectJob job: jobs){
+			job.doTick(BASE_EMIT_FREQ_IN_SEC);
 		}
 	}
 	

@@ -14,7 +14,6 @@ public class SetCounter<I>  extends Slot<I>{
 	
 	@Override
 	public void increase(I i) {
-		System.out.println("***"+i);
 		set.add(i);
 	}
 
@@ -26,9 +25,9 @@ public class SetCounter<I>  extends Slot<I>{
 
 
 	@Override
-	public int sum(Countable<I>[] cs) {
-		for(Countable c: cs){
-			set.addAll((Collection<? extends I>) c.getContent());
+	public int sum(Slot<I>[] cs) {
+		for(Slot c: cs){
+			set.addAll((Collection<? extends I>) ((SetCounter)c).getSet());
 		}
 		return set.size();
 	}
@@ -44,9 +43,14 @@ public class SetCounter<I>  extends Slot<I>{
 		return sb.append("|").toString();
 	}
 
-	@Override
-	public Object getContent() {
+	public HashSet<I> getSet() {
 		return set;
 	}
+
+	public void setSet(HashSet<I> set) {
+		this.set = set;
+	}
+
+	
 	
 }

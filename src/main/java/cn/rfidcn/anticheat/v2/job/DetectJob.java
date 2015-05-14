@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import cn.rfidcn.anticheat.v2.ban.Banable;
-import cn.rfidcn.anticheat.v2.model.Countable;
 import cn.rfidcn.anticheat.v2.model.Slot;
 
 public class DetectJob<K, V>  implements Serializable{
@@ -27,6 +26,7 @@ public class DetectJob<K, V>  implements Serializable{
 	private Banable banable;
 	private ID jobid;
 	private Class countableType;
+	private int currentTick;
 	
 	
 	public void doRecord(ID jobid, K key, V value){
@@ -46,8 +46,7 @@ public class DetectJob<K, V>  implements Serializable{
 		map.get(key)[current].increase(value);
 	}
 	
-	public void doEmit(){	
-		if(this.jobid != jobid) return;
+	public void doEmit(){
 		current = (current+1)%size;
 		Iterator<K> itr = map.keySet().iterator();
 		List<K> toBan = new ArrayList<K>();
@@ -57,7 +56,7 @@ public class DetectJob<K, V>  implements Serializable{
 			Slot[]  slots = map.get(key);
 			int count = slots[current].sum(slots);
 			if(count>= threshold){
-				logger.info("found bad gay, emit >>>>>>>>  "+key);
+				System.out.println("found bad gay, emit >>>>>>>>  "+key);
 				toBan.add(key);
 			}
 			if(count==0){
@@ -74,24 +73,39 @@ public class DetectJob<K, V>  implements Serializable{
 	
 	
 	public void doPrint(){
-		  System.out.println(jobid+"============================");
 		  Iterator<K> mItr = map.keySet().iterator();
 		  while(mItr.hasNext()){
 			 K key = mItr.next();
-		     logger.info("@@@@@@" + key);
+		     System.out.println("@@@@@@" + key);
 		     Slot[]  slots = map.get(key);
 			 for(int i=0; i<size;i++){
 				if(i==current) System.out.print("--->");
 				System.out.println(slots[i].printString());
 			 }
 		  }
-		  System.out.println("============================");
 	}
 
 
 	public DetectJob(){
 		this.current = 0;
 		this.map = new HashMap<K, Slot[]>();
+		this.currentTick = 0;
+	}
+	
+	
+	public void doTick(int baseImitFreq){
+		this.currentTick +=  baseImitFreq;
+	}
+	
+	public boolean isToEmit(){
+		if (currentTick == emitFrequencyInSec){
+			currentTick = 0;
+			logger.info("time to find out the bad guys!!");
+			return true;
+		}else{
+			logger.info("not yet to emit!!");
+			return false;
+		}
 	}
 	
 	public DetectJob setThreshold(int threshold) {

@@ -1,7 +1,6 @@
 package cn.rfidcn.anticheat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +19,7 @@ import cn.rfidcn.anticheat.utils.ConfReader;
 import cn.rfidcn.anticheat.v2.ban.BanUsers;
 import cn.rfidcn.anticheat.v2.bolt.GroupingBoltV2;
 import cn.rfidcn.anticheat.v2.job.DetectJob;
+import cn.rfidcn.anticheat.v2.model.IntegerCounter;
 import cn.rfidcn.anticheat.v2.model.SetCounter;
 
 public class Test {
@@ -55,13 +55,13 @@ public class Test {
     
         DetectJob jobfailure = new DetectJob();
         jobfailure.setJobid(DetectJob.ID.taoId_too_many_failure).setEmitFrequencyInSecAndWindowLengthInSec(15, 60)
-        	.setThreshold(2).setCountableType(SetCounter.class).setBanable(new BanUsers("https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers"));
+        	.setThreshold(2).setCountableType(IntegerCounter.class).setBanable(new BanUsers("https://26859e06572b49b5a1467c80df93c52a.chinacloudapp.cn/config/banusers"));
        
         
         jobs.add(jobsuccess);
         jobs.add(jobfailure);
         
-        builder.setBolt("groupingBolt", new GroupingBoltV2(jobs),1).fieldsGrouping("filterBolt", new Fields("tid"));
+        builder.setBolt("groupingBolt", new GroupingBoltV2(jobs),1).fieldsGrouping("filterBolt", new Fields("key"));
         		
         
         LocalCluster cluster = new LocalCluster();

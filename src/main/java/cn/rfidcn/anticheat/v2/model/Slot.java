@@ -1,35 +1,15 @@
 package cn.rfidcn.anticheat.v2.model;
 
-public class Slot<I> implements Countable<I>{
+public abstract class Slot<I>{
 
-	@Override
-	public void increase(I i) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void increase(I i){}
 
-	@Override
-	public int sum(Countable<I>[] cs) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public int sum(Slot<I>[] cs) { return 0;}
 
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void clear() {}
 
-	@Override
-	public String printString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
+	public String printString() {return null;}
 
-	@Override
-	public Object getContent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

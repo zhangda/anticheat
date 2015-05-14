@@ -32,9 +32,8 @@ public class TestBolt  extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple input) {
-		//flag,oid,tid
+		//jobid,key, value
 		String s = input.getString(0).trim();
-		System.out.println("=================>"+s);
 		String ss[] = s.split(",");
 		if(ss[0].equals("1")){
 			collector.emit(new Values(DetectJob.ID.taoId_too_many_failure,ss[1],ss[2]));
@@ -46,7 +45,7 @@ public class TestBolt  extends BaseRichBolt {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("oid", "tid", "flag"));
+		declarer.declare(new Fields("jobid", "key", "value"));
 		
 	}
 	
